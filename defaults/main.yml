@@ -1,0 +1,4 @@
+ #defaults file for /root/roles/sonar
+nexus_url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+sonar_user: nexus
+sonar_group: nexus

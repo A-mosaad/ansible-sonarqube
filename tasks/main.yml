@@ -1,0 +1,65 @@
+# tasks file for /root/roles/sonar
+- name: install wget
+  apt:
+    name: wget
+    update_cache: true
+- name: Upgrade the OS (apt-get dist-upgrade)
+  apt:
+    upgrade: dist
+
+- name: install java
+  apt:
+    name: default-jdk
+    update_cache: true
+- name: "Create nexus system user"
+  user:
+    name: "{{ sonar_user }}"
+    state: present
+
+- name: "Create nexus system group"
+  group:
+    name: "{{ sonar_group }}"
+    state: present
+- name: Creates directory
+  file:
+    path: /app
+    state: directory
+    owner: "{{ sonar_user }}"
+    group: "{{ sonar_group }}"
+
+- name: Download file
+  get_url:
+    url: "{{ nexus_url }}"
+    dest: /app
+    decompress: true
+- name: Extract nexus.tgz into /app
+  unarchive:
+       remote_src: true
+       src: /app/nexus-3.49.0-02-unix.tar.gz
+       dest: /app
+- name: Change ownership of directory
+  file:
+    path: /app/nexus-3.49.0-02
+    state: directory
+    owner: "{{ sonar_user }}"
+    group: "{{ sonar_group }}"
+- name: Creates directory
+  file:
+    path: /app/sonatype-work
+    state: directory
+    owner: "{{ sonar_user }}"
+    group: "{{ sonar_group }}"
+- name: run nexus as user
+  lineinfile:
+    path: "/app/nexus-3.49.0-02/bin/nexus.rc"
+    line: run_as_user="nexus"
+- name: Copy file of nexus service unit
+  ansible.builtin.copy:
+    src: nexus.service
+    dest: /etc/init.d
+- name:
+  shell: |
+    update-rc.d nexus.service defaults
+    update-rc.d nexus.service start 20 2 3 4 5
+    
+                                 

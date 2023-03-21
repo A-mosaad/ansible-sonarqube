@@ -1,0 +1,5 @@
+- name: play1-install sonarqube
+  hosts: web
+  become: true
+  roles:
+   - /root/roles/sonar
